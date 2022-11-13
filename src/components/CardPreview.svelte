@@ -1,7 +1,11 @@
 <script>
   import { cardStore } from "../components/CardStore";
-  console.log($cardStore);
-  $: console.log("preview" + $cardStore.cvc);
+
+  // If undefined, set default values
+  $: cName = typeof ($cardStore.name) === "undefined" ? "Jane Appleseed" : $cardStore.name;
+  $: cNumber = typeof ($cardStore.number) === "undefined" ? "0000 0000 0000 0000" : $cardStore.number;
+  $: cvc = typeof ($cardStore.cvc) === "undefined" ? "000" : $cardStore.cvc;
+  $: expDate = (typeof ($cardStore.month) === "undefined" ? "00" :  $cardStore.month) + "/" + (typeof ($cardStore.year) === "undefined" ? "00" :  $cardStore.year);
 </script>
 
 <div class="card-preview">
@@ -11,12 +15,15 @@
       src="/images/bg-card-back.png"
       alt="back of credit card"
     />
-    <p class="cvc">{$cardStore.cvc}</p>
+    <p class="cvc">{cvc}</p>
     <img
       class="card-front"
       src="/images/bg-card-front.png"
       alt="front of credit card"
     />
+    <p class="card-num">{cNumber}</p>
+    <p class="card-name">{cName}</p>
+    <p class="exp-date">{expDate}</p>
   </div>
 </div>
 
@@ -37,7 +44,6 @@
   .card-back {
     position: absolute;
     width: 290px;
-    /* z-index: 4; */
   }
   .card-back {
     top: 30px;
@@ -49,9 +55,38 @@
     left: 15px;
     height: 160px;
   }
+  .card-num {
+    position: relative;
+    top: 190px;
+    left: 40px;
+    z-index: 5;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    color: white;
+    text-align: left;
+    margin-bottom: 18px;
+  }
+  .card-name {
+    position: relative;
+    top: 190px;
+    left: 40px;
+    font-size: 0.6rem;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .exp-date {
+    position: relative;
+    top: 178px;
+    right: 90px;
+    font-size: 0.6rem;
+    color: white;
+    letter-spacing: 0.1em;
+    text-align: right;
+  }
   .cvc {
     position: relative;
-    top: -140px;
+    top: 100px;
     right: 46px;
     z-index: 5;
     font-size: 0.8rem;
