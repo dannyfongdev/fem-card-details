@@ -1,3 +1,12 @@
+:root {
+	--error-color: hsl(0, 100%, 66%);
+	--neutral-color-1: hsl(0, 0%, 100%);
+	--neutral-color-2: hsl(270, 3%, 87%);
+	--neutral-color-3: hsl(279, 6%, 55%);
+	--neutral-color-4: hsl(278, 68%, 11%);
+	--secondary-color: hsl(249, 99%, 64%);
+}
+
 * {
 	box-sizing: border-box;
 	margin: 0;
