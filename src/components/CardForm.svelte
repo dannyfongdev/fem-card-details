@@ -14,7 +14,8 @@
   $: $cardStore.year = expYear;
   $: $cardStore.cvc = cvc;
 
-  const handleBlur = () => {
+  // helper functions for credit card number
+  const formatCreditCard = () => {
     if (cNumber !== undefined) {
       cNumber = format(cNumber);
     }
@@ -23,15 +24,14 @@
     // add spaces for readability
     return s.toString().replace(/\d{4}(?=.)/g, "$& ");
   }
-
-  const handleFocus = () => {
+  const stripSpaces = () => {
     // take away spaces
     try {
       cNumber = cNumber.replace(/ /g, "");
     } catch {}
   };
 
-  // Error Handling
+  // Error Handling -- communicate with html/css
   let isErrorName = false;
   let msgErrorName = "";
 
@@ -45,15 +45,21 @@
   let isErrorCvc = false;
   let msgErrorCvc = "";
 
-  // only allow numbers and spaces
-  const regex = new RegExp("^[0-9 ]*$");
-  function IsValidNum(s) {
-    return regex.test(s);
-  }
-
+  
+  // calls all validation checks
+  // each validatin check also runs on on:blur
   const IsValidData = () => {
+    if (
+      IsValidName() &&
+      IsValidCreditCard() &&
+      IsValidExpiration() &&
+      IsValidCvc() 
+    ) return true
+    else return false;
+  };
+
+  const IsValidName = () => {
     let valid = true;
-    // validate name
     if (cName === undefined) {
       isErrorName = true;
       msgErrorName = "Can't be blank";
@@ -66,20 +72,36 @@
       isErrorName = false;
       msgErrorName = "";
     }
-    // validate credit card number
+    return valid;
+  }
+  
+  const IsValidCreditCard = () => {
+    // only allow numbers and spaces
+    stripSpaces();
+    const regex = new RegExp("^[0-9]*$");
+    function IsValidNum(s) {
+      return regex.test(s);
+    }
+    let valid = true;
     if (!IsValidNum(cNumber)) {
       isErrorNum = true;
       msgErrorNum = "Wrong format, numbers only";
       valid = false;
-    } else if (cNumber.length != 19) {
+    } else if (cNumber.length != 16) {
       isErrorNum = true;
       msgErrorNum = "Wrong format, less than 16 digits";
       valid = false;
     } else {
       isErrorNum = false;
       msgErrorNum = "";
+      formatCreditCard();
     }
-    // validate expiration month
+    return valid;
+  }
+  const IsValidExpiration = () => {
+    const reMonth = /^0[1-9]|1[0-2]$/;
+    const reYear = /^[0-9][0-9]$/;
+    let valid = true;
     if (expMonth === undefined) {
       isErrorMonth = true;
       msgErrorMonthYear = "Can't be blank";
@@ -88,11 +110,14 @@
       isErrorMonth = true;
       msgErrorMonthYear = "Must be two digits";
       valid = false;
+    } else if (!reMonth.test(expMonth)) {
+      isErrorMonth = true;
+      msgErrorMonthYear = "Not a valid month";
+      valid = false;
     } else {
       isErrorMonth = false;
       msgErrorMonthYear = "";
-    }
-    // validate expiration year
+    } 
     if (expYear === undefined) {
       isErrorYear = true;
       msgErrorMonthYear = "Can't be blank";
@@ -101,11 +126,21 @@
       isErrorYear = true;
       msgErrorMonthYear = "Must be two digits";
       valid = false;
+    } else if (!reYear.test(expYear)) {
+      isErrorYear = true;
+      msgErrorMonthYear = "Not a valid year";
+      valid = false;
     } else {
       isErrorYear = false;
-      msgErrorMonthYear = "";
+      if (!isErrorMonth)
+        msgErrorMonthYear = "";
     }
-    // valiate cvc
+    return valid;
+  }
+
+  const IsValidCvc = () => {
+    const reCvc = /^[0-9][0-9][0-9]$/;
+    let valid = true;
     if (cvc === undefined) {
       isErrorCvc = true;
       msgErrorCvc = "Can't be blank";
@@ -118,12 +153,16 @@
       isErrorCvc = true;
       msgErrorCvc = "Must be three digits";
       valid = false;
+    } else if (!reCvc.test(cvc)) {
+      isErrorCvc = true;
+      msgErrorCvc = "Not a valid CVC";
+      valid = false;
     } else {
       isErrorCvc = false;
       msgErrorCvc = "";
     }
     return valid;
-  };
+  }
 
   const handleConfirm = () => {
     if (IsValidData()) {
@@ -142,6 +181,7 @@
         placeholder="e.g. Jane Appleseed"
         bind:value={cName}
         class:outline-error={isErrorName}
+        on:blur={IsValidName}
       />
       {#if isErrorName}<div class="is-error">
           {msgErrorName}
@@ -150,8 +190,8 @@
     <div class="input-group">
       <label for="c-number">Card Number</label>
       <input
-        on:blur={handleBlur}
-        on:focus={handleFocus}
+        on:blur={IsValidCreditCard}
+        on:focus={stripSpaces}
         type="text"
         id="c-number"
         placeholder="e.g. 1234 5678 9123 0000"
@@ -182,6 +222,7 @@
           bind:value={expYear}
           maxlength="2"
           class:outline-error={isErrorYear}
+          on:blur={IsValidExpiration}
         />
         <input
           type="text"
@@ -190,6 +231,7 @@
           bind:value={cvc}
           maxlength="3"
           class:outline-error={isErrorCvc}
+          on:blur={IsValidCvc}
         />
         {#if isErrorMonth || isErrorYear || isErrorCvc}
           <div class="two-column is-error">
@@ -206,11 +248,6 @@
 </div>
 
 <style>
-  .container {
-    max-width: 720px;
-    min-width: 500px;
-    padding-top: 250px;
-  }
   form {
     width: 375px;
     padding: 25px;
@@ -278,7 +315,8 @@
   @media (min-width: 800px) {
     form {
       width: 430px;
-      padding: 25px;
+      padding: 250px 25px 25px 25px;
+      margin-left: 50px;
     }
   }
 </style>
