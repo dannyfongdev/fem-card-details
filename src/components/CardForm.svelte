@@ -52,7 +52,8 @@
     if (
       IsValidName() &&
       IsValidCreditCard() &&
-      IsValidExpiration() &&
+      IsValidExpMonth() &&
+      IsValidExpYear() &&
       IsValidCvc() 
     ) return true
     else return false;
@@ -98,9 +99,8 @@
     }
     return valid;
   }
-  const IsValidExpiration = () => {
+  const IsValidExpMonth = () => {
     const reMonth = /^0[1-9]|1[0-2]$/;
-    const reYear = /^[0-9][0-9]$/;
     let valid = true;
     if (expMonth === undefined) {
       isErrorMonth = true;
@@ -118,6 +118,12 @@
       isErrorMonth = false;
       msgErrorMonthYear = "";
     } 
+    return valid;
+  }
+
+  const IsValidExpYear = () => {
+    const reYear = /^[0-9][0-9]$/;
+    let valid = true;
     if (expYear === undefined) {
       isErrorYear = true;
       msgErrorMonthYear = "Can't be blank";
@@ -214,6 +220,7 @@
           bind:value={expMonth}
           maxlength="2"
           class:outline-error={isErrorMonth}
+          on:blur={IsValidExpMonth}
         />
         <input
           type="text"
@@ -222,7 +229,7 @@
           bind:value={expYear}
           maxlength="2"
           class:outline-error={isErrorYear}
-          on:blur={IsValidExpiration}
+          on:blur={IsValidExpYear}
         />
         <input
           type="text"

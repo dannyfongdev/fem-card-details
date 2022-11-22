@@ -5,7 +5,7 @@
   <img src="/images/icon-complete.svg" alt="check mark" />
   <h2>Thank You!</h2>
   <p>We've added your card details</p>
-  <button>Continue</button>
+  <a href="/" class="btn">Continue</a>
 </div>
 
 <style>
@@ -28,20 +28,23 @@
     margin-bottom: 40px;
     color: var(--neutral-color-3);
   }
-  button {
+  .btn {
+    display: block;
+    text-decoration: none;
     width: 100%;
     padding: 0.7rem;
     border-radius: 10px;
     background: var(--neutral-color-4);
     color: var(--neutral-color-1);
   }
-  button:hover {
+  .btn:hover {
     background: var(--secondary-color);
   }
   @media (min-width: 800px) {
     .container {
       padding: 320px 25px 0 25px;
       width: 430px;
+      margin-left: 50px;
     }
   }
 </style>
